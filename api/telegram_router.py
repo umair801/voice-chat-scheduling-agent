@@ -23,11 +23,12 @@ TELEGRAM_API = "https://api.telegram.org/bot"
 
 async def send_telegram_message(chat_id: int | str, text: str) -> None:
     """Send a text reply back to the Telegram user."""
-    if not settings.telegram_bot_token:
+    _settings = get_settings()
+    if not _settings.telegram_bot_token:
         logger.warning("telegram.no_token")
         return
 
-    url = f"{TELEGRAM_API}{settings.telegram_bot_token}/sendMessage"
+    url = f"{TELEGRAM_API}{_settings.telegram_bot_token}/sendMessage"
     payload = {
         "chat_id": chat_id,
         "text": text,
