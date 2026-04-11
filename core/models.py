@@ -11,6 +11,7 @@ class Channel(str, Enum):
     CHAT = "chat"
     SMS = "sms"
     WHATSAPP = "whatsapp"
+    TELEGRAM = "telegram"
 
 
 class Intent(str, Enum):
@@ -19,9 +20,14 @@ class Intent(str, Enum):
     CANCEL = "cancel"
     CHECK_STATUS = "check_status"
     GENERAL_INQUIRY = "general_inquiry"
+    SALES_INQUIRY = "sales_inquiry"
+    TECH_INQUIRY = "tech_inquiry"
+    CALLBACK_REQUEST = "callback_request"
+    PRICING_QUESTION = "pricing_question"
+    DEMO_REQUEST = "demo_request"
     UNKNOWN = "unknown"
-
-
+    
+    
 class BookingStatus(str, Enum):
     PENDING = "pending"
     CONFIRMED = "confirmed"
@@ -57,14 +63,25 @@ class NormalizedMessage(BaseModel):
 
 class ExtractedEntities(BaseModel):
     """Entities extracted from customer message by the Intent Parser."""
+    # Booking-related
     service_type: Optional[ServiceType] = None
     preferred_date: Optional[str] = None        # ISO date string: "2025-01-15"
     preferred_time: Optional[str] = None        # "14:00"
     location: Optional[str] = None
     duration_minutes: Optional[int] = None
+    
+    # Sales-related
+    customer_name: Optional[str] = None
+    customer_email: Optional[str] = None
+    company_name: Optional[str] = None
+    inquiry_type: Optional[str] = None
+    urgency: Optional[str] = None
+    preferred_callback_time: Optional[str] = None
+    
+    # General
     notes: Optional[str] = None
-
-
+    
+    
 class ParsedIntent(BaseModel):
     intent: Intent
     confidence: float = Field(ge=0.0, le=1.0)

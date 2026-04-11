@@ -14,6 +14,7 @@ from api.crm_mock import router as crm_router
 from api.voice_router import router as voice_router
 from api.chat_router import router as chat_router
 from api.metrics_router import router as metrics_router
+from api.telegram_router import router as telegram_router
 
 logger = get_logger(__name__)
 
@@ -107,7 +108,7 @@ async def health_check() -> dict:
     return {
         "status": "healthy",
         "env": settings.app_env.value,
-        "routers": ["crm", "voice", "chat", "metrics"],
+        "routers": ["crm", "voice", "chat", "metrics", "telegram"],
     }
 
 

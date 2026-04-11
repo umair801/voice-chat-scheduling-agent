@@ -45,6 +45,13 @@ class Settings(BaseSettings):
 
     model_config = {"env_file": ".env", "case_sensitive": False}
 
+    elevenlabs_api_key: str = Field(default="", env="ELEVENLABS_API_KEY")
+    elevenlabs_voice_id: str = Field(default="pNInz6obpgDQGcFmaJgB", env="ELEVENLABS_VOICE_ID")
+    
+    telegram_bot_token: str = Field(default="", env="TELEGRAM_BOT_TOKEN")
+    telegram_webhook_secret: str = Field(default="", env="TELEGRAM_WEBHOOK_SECRET")
+
+    
 # This line must exist -- it creates the singleton instance
 settings = Settings()
 
