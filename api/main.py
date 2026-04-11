@@ -87,6 +87,7 @@ app.include_router(crm_router)
 app.include_router(voice_router)
 app.include_router(chat_router)
 app.include_router(metrics_router)
+app.include_router(telegram_router)
 
 
 # ── Root and Health Endpoints ─────────────────────────────────────────────────
