@@ -21,7 +21,7 @@ async def save_booking(booking_data: dict) -> dict | None:
     """Insert a booking record into Supabase."""
     try:
         db = get_db()
-        result = db.table("bookings").insert(booking_data).execute()
+        result = db.table("scheduling_bookings").insert(booking_data).execute()
         logger.info("database.booking_saved", booking_id=booking_data.get("booking_id"))
         return result.data[0] if result.data else None
     except Exception as e:
@@ -34,7 +34,7 @@ async def get_bookings_by_phone(phone: str) -> list[dict]:
     try:
         db = get_db()
         result = (
-            db.table("bookings")
+            db.table("scheduling_bookings")
             .select("*")
             .eq("customer_phone", phone)
             .order("created_at", desc=True)
@@ -51,7 +51,7 @@ async def update_booking_status(booking_id: str, status: str, extra: dict | None
     try:
         db = get_db()
         update_data = {"status": status, **(extra or {})}
-        db.table("bookings").update(update_data).eq("booking_id", booking_id).execute()
+        db.table("scheduling_bookings").update(update_data).eq("booking_id", booking_id).execute()
         logger.info("database.booking_updated", booking_id=booking_id, status=status)
         return True
     except Exception as e:
@@ -63,7 +63,7 @@ async def save_session(session_data: dict) -> bool:
     """Upsert session state."""
     try:
         db = get_db()
-        db.table("sessions").upsert(session_data).execute()
+        db.table("scheduling_sessions").upsert(session_data).execute()
         return True
     except Exception as e:
         logger.error("database.save_session_failed", error=str(e))
@@ -75,7 +75,7 @@ async def get_session(session_id: str) -> dict | None:
     try:
         db = get_db()
         result = (
-            db.table("sessions")
+            db.table("scheduling_sessions")
             .select("*")
             .eq("session_id", session_id)
             .execute()
@@ -97,7 +97,7 @@ async def log_agent_event(
     """Write an agent event to the logs table."""
     try:
         db = get_db()
-        db.table("agent_logs").insert({
+        db.table("scheduling_agent_logs").insert({
             "session_id": session_id,
             "event": event,
             "channel": channel,
