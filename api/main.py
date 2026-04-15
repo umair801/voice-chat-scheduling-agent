@@ -15,6 +15,9 @@ from api.voice_router import router as voice_router
 from api.chat_router import router as chat_router
 from api.metrics_router import router as metrics_router
 from api.telegram_router import router as telegram_router
+from api.monitoring_router import router as monitoring_router
+from fastapi.responses import FileResponse
+import os
 
 logger = get_logger(__name__)
 
@@ -88,7 +91,7 @@ app.include_router(voice_router)
 app.include_router(chat_router)
 app.include_router(metrics_router)
 app.include_router(telegram_router)
-
+app.include_router(monitoring_router)
 
 # ── Root and Health Endpoints ─────────────────────────────────────────────────
 
@@ -109,8 +112,14 @@ async def health_check() -> dict:
     return {
         "status": "healthy",
         "env": settings.app_env.value,
-        "routers": ["crm", "voice", "chat", "metrics", "telegram"],
+        "routers": ["crm", "voice", "chat", "metrics", "telegram", "monitoring"],
     }
+
+
+@app.get("/monitor", tags=["Monitoring"], include_in_schema=False)
+async def monitoring_dashboard() -> FileResponse:
+    html_path = os.path.join(os.path.dirname(__file__), "monitor.html")
+    return FileResponse(html_path)
 
 
 # ── Global Exception Handler ──────────────────────────────────────────────────

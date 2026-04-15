@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datawebify Scheduler — Live Monitor</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f1117;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #1a1d27;
+            border-bottom: 1px solid #2d3148;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        header h1 span {
+            color: #6366f1;
+        }
+
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .container { padding: 24px 32px; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: #1a1d27;
+            border: 1px solid #2d3148;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .stat-card .label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .stat-card .value.green { color: #22c55e; }
+        .stat-card .value.blue { color: #6366f1; }
+        .stat-card .value.yellow { color: #f59e0b; }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+        }
+
+        .sessions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .session-card {
+            background: #1a1d27;
+            border: 1px solid #2d3148;
+            border-radius: 10px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .session-card:hover {
+            border-color: #6366f1;
+        }
+
+        .session-meta {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .badge.channel-voice { background: #1e3a5f; color: #60a5fa; }
+        .badge.channel-chat { background: #1a3a2a; color: #4ade80; }
+        .badge.channel-telegram { background: #1e2d4a; color: #818cf8; }
+        .badge.channel-whatsapp { background: #1a3a2a; color: #4ade80; }
+        .badge.channel-sms { background: #3a2a1a; color: #fb923c; }
+        .badge.intent { background: #2d1f3a; color: #c084fc; }
+        .badge.turns { background: #1f2937; color: #9ca3af; }
+
+        .session-phone {
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .last-message {
+            font-size: 13px;
+            color: #64748b;
+            font-style: italic;
+            margin-top: 8px;
+            border-left: 2px solid #2d3148;
+            padding-left: 10px;
+        }
+
+        .takeover-btn {
+            background: #dc2626;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+
+        .takeover-btn:hover { background: #b91c1c; }
+        .takeover-btn:disabled {
+            background: #374151;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #475569;
+        }
+
+        .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+        .empty-state p { font-size: 15px; }
+
+        .refresh-info {
+            text-align: right;
+            font-size: 12px;
+            color: #475569;
+            margin-bottom: 16px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1a1d27;
+            border: 1px solid #22c55e;
+            color: #22c55e;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1><span>Datawebify</span> Scheduler — Live Monitor</h1>
+    <div class="live-badge">
+        <div class="live-dot"></div>
+        Auto-refreshes every 10 seconds
+    </div>
+</header>
+
+<div class="container">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="label">Active Sessions</div>
+            <div class="value green" id="stat-active">—</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Total Bookings</div>
+            <div class="value blue" id="stat-total">—</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Confirmed Bookings</div>
+            <div class="value yellow" id="stat-confirmed">—</div>
+        </div>
+    </div>
+
+    <div class="refresh-info" id="refresh-info">Loading...</div>
+
+    <div class="section-title">Live Conversations</div>
+    <div class="sessions-list" id="sessions-list">
+        <div class="empty-state">
+            <div class="icon">⏳</div>
+            <p>Loading sessions...</p>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    async function fetchStats() {
+        try {
+            const r = await fetch('/monitor/stats');
+            const data = await r.json();
+            document.getElementById('stat-active').textContent = data.active_sessions ?? '—';
+            document.getElementById('stat-total').textContent = data.total_bookings ?? '—';
+            document.getElementById('stat-confirmed').textContent = data.confirmed_bookings ?? '—';
+        } catch (e) {
+            console.error('Stats fetch failed:', e);
+        }
+    }
+
+    async function fetchSessions() {
+        try {
+            const r = await fetch('/monitor/sessions');
+            const data = await r.json();
+            const list = document.getElementById('sessions-list');
+            const now = new Date().toLocaleTimeString();
+            document.getElementById('refresh-info').textContent = `Last updated: ${now}`;
+
+            if (!data.sessions || data.sessions.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">💤</div>
+                        <p>No active sessions right now. Waiting for incoming conversations...</p>
+                    </div>`;
+                return;
+            }
+
+            list.innerHTML = data.sessions.map(s => {
+                const channel = s.channel || 'unknown';
+                const phone = s.customer_phone || s.session_id;
+                const intent = s.current_intent || 'unknown';
+                const turns = s.turn_count || 0;
+                const lastMsg = s.last_message
+                    ? (typeof s.last_message === 'string'
+                        ? s.last_message
+                        : (s.last_message.content || JSON.stringify(s.last_message)))
+                    : 'No messages yet';
+
+                return `
+                <div class="session-card" id="session-${s.session_id}">
+                    <div>
+                        <div class="session-phone">${phone}</div>
+                        <div class="session-meta">
+                            <span class="badge channel-${channel}">${channel}</span>
+                            <span class="badge intent">${intent}</span>
+                            <span class="badge turns">${turns} turns</span>
+                        </div>
+                        <div class="last-message">${String(lastMsg).substring(0, 120)}${String(lastMsg).length > 120 ? '...' : ''}</div>
+                    </div>
+                    <button
+                        class="takeover-btn"
+                        onclick="takeover('${s.session_id}', this)"
+                    >
+                        Take Over
+                    </button>
+                </div>`;
+            }).join('');
+
+        } catch (e) {
+            console.error('Sessions fetch failed:', e);
+        }
+    }
+
+    async function takeover(sessionId, btn) {
+        btn.disabled = true;
+        btn.textContent = 'Taking over...';
+        try {
+            const r = await fetch('/monitor/takeover', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: sessionId }),
+            });
+            const data = await r.json();
+            if (data.status === 'ok') {
+                btn.textContent = 'Taken Over';
+                showToast(`Session ${sessionId} handed to human agent.`);
+                setTimeout(fetchSessions, 2000);
+            } else {
+                btn.disabled = false;
+                btn.textContent = 'Take Over';
+            }
+        } catch (e) {
+            btn.disabled = false;
+            btn.textContent = 'Take Over';
+        }
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.style.display = 'block';
+        setTimeout(() => { t.style.display = 'none'; }, 4000);
+    }
+
+    function refresh() {
+        fetchStats();
+        fetchSessions();
+    }
+
+    refresh();
+    setInterval(refresh, 10000);
+</script>
+
+</body>
+</html>
