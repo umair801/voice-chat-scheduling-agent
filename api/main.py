@@ -49,7 +49,7 @@ app = FastAPI(
     version="1.0.0",
     contact={
         "name": "Muhammad Umair | Datawebify",
-        "url": "https://datawebify.com",
+        "url": "https://datawebify.com/projects/agai7-voice-chat-scheduling-agent",
     },
     lifespan=lifespan,
 )
