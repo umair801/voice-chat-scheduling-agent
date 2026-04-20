@@ -179,7 +179,7 @@ AgAI_7_Voice_Chat_Scheduling_Agent/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/umair801/voice_chat_scheduling_agent.git
+git clone https://github.com/umair801/voice-chat-scheduling-agent.git
 cd agai7-scheduling-agent
 ```
 
@@ -349,7 +349,7 @@ This is Project 7 of 50 in the Datawebify Agentic AI portfolio.
 | AgAI-4 | RAG Knowledge Base Agent | rag.datawebify.com |
 | AgAI-5 | Real Estate AI Domination System | reds.datawebify.com |
 | AgAI-6 | Autonomous Research Agent | ara.datawebify.com |
-| AgAI-7 | Voice and Chat Scheduling Agent | scheduling.datawebify.com |
+| AgAI-7 | Voice and Chat Scheduling Agent | [scheduling.datawebify.com](https://scheduling.datawebify.com) — [Portfolio](https://datawebify.com/projects/agai7-voice-chat-scheduling-agent) |
 
 ---
 
